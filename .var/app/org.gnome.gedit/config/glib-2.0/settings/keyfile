@@ -1,0 +1,36 @@
+[org/gnome/gedit/plugins]
+active-plugins=['textsize', 'spell', 'sort', 'sessionsaver', 'quickhighlight', 'multiedit', 'filebrowser', 'drawspaces', 'docinfo', 'colorpicker', 'codecomment']
+
+[org/gnome/gedit/preferences/editor]
+style-scheme-for-dark-theme-variant='catppuccin_mocha'
+wrap-last-split-mode='word'
+use-default-font=false
+editor-font='FiraCode Nerd Font 11'
+tabs-size=4
+insert-spaces=true
+auto-save=false
+auto-save-interval=1
+scheme='catppuccin_mocha'
+
+[org/gnome/gedit/preferences/ui]
+theme-variant='dark'
+statusbar-visible=true
+side-panel-visible=false
+bottom-panel-visible=false
+
+[org/gnome/gedit/plugins/drawspaces]
+matrix=[11, 8, 9]
+
+[org/gnome/gedit/plugins/filebrowser]
+tree-view=true
+
+[org/gtk/settings/file-chooser]
+date-format='with-time'
+location-mode='path-bar'
+show-hidden=true
+show-size-column=true
+show-type-column=true
+sort-column='name'
+sort-directories-first=true
+sort-order='ascending'
+type-format='category'

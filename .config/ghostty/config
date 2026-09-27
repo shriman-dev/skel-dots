@@ -1,0 +1,48 @@
+# black
+palette = 0=#3F3F62
+palette = 8=#47476F
+
+# red
+palette = 1=#F882A3
+palette = 9=#F38BA8
+
+# green
+palette = 2=#9FE899
+palette = 10=#A6E3A1
+
+# yellow
+palette = 3=#FEE1A1
+palette = 11=#F9E2AF
+
+# blue
+palette = 4=#7FB0FF
+palette = 12=#89B4FA
+
+# purple
+palette = 5=#C89DFC
+palette = 13=#CBA6F7
+
+# cyan
+palette = 6=#87E7D7
+palette = 14=#94E2D5
+
+# white
+palette = 7=#BAC2DE
+palette = 15=#CDD6F4
+
+background = #1E1E2E
+foreground = #CDD6F4
+
+font-family = "FiraCode Nerd Font"
+
+shell-integration-features = no-cursor
+cursor-style = underline
+
+focus-follows-mouse = true
+
+adw-toolbar-style = raised-border
+#window-decoration = false
+
+scrollback-limit = 99999999999999999
+
+command = fish

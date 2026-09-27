@@ -1,0 +1,156 @@
+"use strict";
+
+import Shell from "gi://Shell";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+
+import * as Main from "resource:///org/gnome/shell/ui/main.js";
+import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
+import * as QuickSettings from "resource:///org/gnome/shell/ui/quickSettings.js";
+import * as Util from "resource:///org/gnome/shell/misc/util.js";
+import * as Menu_Items from "./lib/menu_items.js";
+import { PopupAnimation } from "resource:///org/gnome/shell/ui/boxpointer.js";
+
+import { Extension, gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+
+const QuickSettingsMenu = Main.panel.statusArea.quickSettings;
+
+const SettingsCenterMenuToggle = GObject.registerClass(
+    class SettingsCenterMenuToggle extends QuickSettings.QuickMenuToggle {
+        constructor(extension) {
+            const { _settings } = extension;
+            const labelmenu = _(_settings.get_string("label-menu"));
+            super({
+                title: labelmenu,
+                iconName: "preferences-other-symbolic",
+                toggleMode: true,
+            });
+
+            this.menu.setHeader("preferences-other-symbolic", labelmenu, "");
+
+            _settings.bind("show-systemindicator", this, "checked", Gio.SettingsBindFlags.DEFAULT);
+
+            try {
+                const menuItems = new Menu_Items.MenuItems(_settings);
+                this._items = menuItems.getEnableItems();
+
+                if (this._items.length > 0) {
+                    for (const [index, item] of this._items.entries()) {
+                        let strIcon,
+                            strLabel = null;
+                        if (item["cmd"].match(/.desktop$/)) {
+                            const app = Shell.AppSystem.get_default().lookup_app(item["cmd"]);
+                            if (app !== null) {
+                                strLabel = app.get_name();
+                                strIcon = app.icon.to_string();
+                            }
+                        }
+                        const menuItem = new PopupMenu.PopupImageMenuItem(
+                            strLabel || item.label,
+                            strIcon || "image-missing-symbolic"
+                        );
+                        menuItem.connect("activate", () => this.launch(item));
+                        this.menu.addMenuItem(menuItem, index);
+                    }
+                }
+
+                this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+                const settingsItem = this.menu.addAction(_("Settings"), () => {
+                    extension.openPreferences();
+                    QuickSettingsMenu.menu.close(PopupAnimation.FADE);
+                });
+
+                settingsItem.visible = Main.sessionMode.allowSettings;
+                this.menu._settingsActions[extension.uuid] = settingsItem;
+            } catch (error) {
+                extension.getLogger().error(`Error in SettingsCenterMenuToggle constructor: ${error}`);
+            }
+        }
+
+        launch(settingItem) {
+            if (settingItem["cmd"].match(/.desktop$/)) {
+                const app = Shell.AppSystem.get_default().lookup_app(settingItem["cmd"]);
+
+                if (app !== null) app.activate();
+                else if (settingItem["cmd-alt"] !== null) Util.spawn([settingItem["cmd-alt"]]);
+            } else {
+                const cmdArray = settingItem["cmd"].split(" ");
+                Util.spawn(cmdArray);
+            }
+            QuickSettingsMenu.menu.close(PopupAnimation.FADE);
+        }
+    }
+);
+
+const SettingsCenterIndicator = GObject.registerClass(
+    class SettingsCenterIndicator extends QuickSettings.SystemIndicator {
+        constructor(extension) {
+            const { _settings } = extension;
+            super();
+            // Create the icon for the indicator
+            this._indicator = this._addIndicator();
+            this._indicator.icon_name = "preferences-other-symbolic";
+            this._indicator.visible = _settings.get_boolean("show-systemindicator");
+
+            // Create the toggle menu and associate it with the indicator, being
+            // sure to destroy it along with the indicator
+            this.quickSettingsItems.push(new SettingsCenterMenuToggle(extension));
+
+            this.connect("destroy", () => {
+                for (const item of this.quickSettingsItems) {
+                    item.destroy();
+                }
+            });
+
+            // Add the indicator to the panel and the toggle to the menu
+            QuickSettingsMenu._indicators.insert_child_at_index(this, 0);
+            QuickSettingsMenu.addExternalIndicator(this);
+        }
+
+        setIndicatorVisible(visible) {
+            this._indicator.visible = visible;
+        }
+    }
+);
+
+export default class SettingsCenter extends Extension {
+    _onParamChanged() {
+        this.disable();
+        this.enable();
+    }
+
+    _onParamChangedIndicator() {
+        this._indicator.setIndicatorVisible(this._settings.get_boolean("show-systemindicator"));
+    }
+
+    enable() {
+        this._settings = this.getSettings();
+        this._settingSignals = [];
+        this._indicator = new SettingsCenterIndicator(this);
+
+        const settingsToMonitor = [
+            { key: "label-menu", callback: this._onParamChanged.bind(this) },
+            {
+                key: "show-systemindicator",
+                callback: this._onParamChangedIndicator.bind(this),
+            },
+            { key: "items", callback: this._onParamChanged.bind(this) },
+        ];
+
+        for (const setting of settingsToMonitor) {
+            this._settingSignals.push(this._settings.connect(`changed::${setting.key}`, setting.callback));
+        }
+    }
+
+    disable() {
+        //Remove setting Signals
+        for (const signal of this._settingSignals) {
+            this._settings.disconnect(signal);
+        }
+        this._settingSignals = null;
+        this._settings = null;
+
+        this._indicator.destroy();
+        this._indicator = null;
+    }
+}

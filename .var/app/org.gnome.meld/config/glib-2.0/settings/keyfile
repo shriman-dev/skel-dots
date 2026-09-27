@@ -1,0 +1,16 @@
+[org/gnome/meld/window-state]
+width=1896
+height=978
+is-maximized=false
+
+[org/gnome/meld]
+wrap-mode='none'
+highlight-current-line=true
+show-line-numbers=true
+enable-space-drawer=false
+highlight-syntax=true
+style-scheme='catpuccin-mocha'
+use-system-font=false
+indent-width=8
+custom-font='FiraCode Nerd Font 11'
+use-system-editor=true

@@ -1,0 +1,318 @@
+/* DownFall – Gnome Shell Extension
+ * Copyright (C) 2019-2026 Benjamin S Osenbach
+ *
+ * Inspired by Let It Snow (https://github.com/offlineric/gsnow).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+import Gtk from 'gi://Gtk';
+import Gio from 'gi://Gio';
+import Gdk from 'gi://Gdk';
+import GLib from 'gi://GLib';
+import Pango from 'gi://Pango';
+
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+
+import * as Config from 'resource:///org/gnome/Shell/Extensions/js/misc/config.js';
+
+export default class DFPreferences extends ExtensionPreferences {
+ fillPreferencesWindow(window) {
+    window.search_enabled = true;
+    let builder = Gtk.Builder.new();
+    builder.add_from_file(this.path + '/prefs.ui');
+    let page1 = builder.get_object('appearance-page');
+    let page2 = builder.get_object('behavior-page');
+    let page3 = builder.get_object('sfx-page');
+    let page4 = builder.get_object('about-page');
+    window.add(page1);
+    window.add(page2);
+    window.add(page3);
+    window.add(page4);
+
+    let settings = this.getSettings();
+
+    //bind settings from prefs.xml to schema keys
+    settings.bind('presets', builder.get_object('presets'), 'selected', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('textfont', builder.get_object('text_font'), 'font-desc', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('textshad', builder.get_object('text_shad'), 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('textshadtype', builder.get_object('text_shad_type'), 'selected', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('textshadx', builder.get_object('text_shad_x'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('textshady', builder.get_object('text_shad_y'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('textshadblur', builder.get_object('text_shad_blur'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('fallmon', builder.get_object('fall_monitor'), 'selected', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('falldirec', builder.get_object('fall_direc'), 'selected', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('fall3d', builder.get_object('fall_3d'), 'selected', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('clutteranimmode', builder.get_object('clutter_animmode'), 'selected', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('maxitems', builder.get_object('max_items'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('falltime', builder.get_object('fall_time'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('fallrot', builder.get_object('fall_rot'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('falldrift', builder.get_object('fall_drift'), 'value', Gio.SettingsBindFlags.DEFAULT);
+
+    settings.bind('matrixtrails', builder.get_object('matrix_switch'), 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('matfont', builder.get_object('mat_font'), 'font-desc', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('matshad', builder.get_object('mat_shad'), 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('matshadtype', builder.get_object('mat_shad_type'), 'selected', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('matshadx', builder.get_object('mat_shad_x'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('matshady', builder.get_object('mat_shad_y'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('matshadblur', builder.get_object('mat_shad_blur'), 'value', Gio.SettingsBindFlags.DEFAULT);
+
+    settings.bind('fireworks', builder.get_object('firework_switch'), 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('flrfont', builder.get_object('flr_font'), 'font-desc', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('flrshad', builder.get_object('flr_shad'), 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('flrshadtype', builder.get_object('flr_shad_type'), 'selected', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('flrshadx', builder.get_object('flr_shad_x'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('flrshady', builder.get_object('flr_shad_y'), 'value', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('flrshadblur', builder.get_object('flr_shad_blur'), 'value', Gio.SettingsBindFlags.DEFAULT);
+
+    //set up text entries
+    widget_schema('falltext', 'display_field', settings, builder);
+    widget_schema('matdisplay', 'mat_display', settings, builder);
+    widget_schema('flrdisplay', 'flr_display', settings, builder);
+
+    //set up color entries
+    widget_color('textcolor', 'text_color', settings, builder);
+    widget_color('textshadcolor', 'text_shad_color', settings, builder);
+    widget_color('matcolor', 'mat_color', settings, builder);
+    widget_color('matshadcolor', 'mat_shad_color', settings, builder);
+    widget_color('flrcolor', 'flr_color', settings, builder);
+    widget_color('flrshadcolor', 'flr_shad_color', settings, builder);
+
+    //bind presets to specific values
+    builder.get_object('presets').connect('notify::selected', () => {
+  	set_presets(builder.get_object('presets').get_selected(), builder);
+    });
+
+    //bind font buttons to font schemas
+    font_schema('textfont', 'text_font', settings, builder);
+    font_schema('matfont', 'mat_font', settings, builder);
+    font_schema('flrfont', 'flr_font', settings, builder);
+
+    //bind random button to random values
+    builder.get_object('random_button').connect('clicked', () => {
+    	let rgba = new Gdk.RGBA();
+  	
+  	builder.get_object('presets').set_selected(0);
+  	builder.get_object('display_field').set_text( String.fromCharCode(Math.floor(Math.random() * (65536))) );
+  	let color = "\#" + Math.floor(Math.random()*16777215).toString(16);
+  	rgba.parse( color );
+  	builder.get_object('text_color').set_rgba(rgba);
+  	builder.get_object('fall_direc').set_selected(GLib.random_int_range(0,8));
+  	builder.get_object('max_items').set_value(GLib.random_int_range(1,40));
+  	builder.get_object('fall_time').set_value(GLib.random_int_range(2,20));
+  	builder.get_object('fall_rot').set_value(GLib.random_int_range(0,360));
+  	builder.get_object('fall_drift').set_value(GLib.random_int_range(0,100));
+  	builder.get_object('matrix_switch').set_enable_expansion( (Math.random() >= 0.5) );
+  	builder.get_object('firework_switch').set_enable_expansion( (Math.random() >= 0.5) );
+    });
+ }
+}
+
+function widget_schema(schemakey, widget, settings, buildable) {
+  //set widget from schemakey
+  let disptext = settings.get_strv(schemakey).toString();
+  buildable.get_object(widget).set_text(disptext);
+  
+  //bind schemakey to widget changes
+  buildable.get_object(widget).connect('changed', (entry) => {
+  	let typed = entry.get_text().split(',');
+  	settings.set_strv(schemakey, typed);
+  });
+}
+
+function widget_color(schemakey, widget, settings, buildable) {
+  //set color button from settings
+  let rgba = new Gdk.RGBA();
+  rgba.parse(settings.get_string(schemakey));
+  buildable.get_object(widget).set_rgba(rgba);
+  
+  //bind text color to key
+  buildable.get_object(widget).connect('notify::rgba', (button) => {
+            let rgba_1 = button.get_rgba();
+            settings.set_string(schemakey, rgba_1.to_string());
+        });
+}
+
+function font_schema(schemakey, widget, settings, buildable) {
+  //set widget from schemakey
+  let fontdesc = Pango.font_description_from_string(settings.get_string(schemakey));
+  buildable.get_object(widget).set_font_desc(fontdesc);
+  
+  //bind schemakey to widget changes
+  buildable.get_object(widget).connect('notify::font-desc', (fontdgbutton) => {
+  	let fontdesc = fontdgbutton.get_font_desc();
+  	settings.set_string(schemakey, fontdesc.to_string());
+  });
+}
+function set_presets(preset, buildable) {
+  let rgba = new Gdk.RGBA();
+  let rgba2 = new Gdk.RGBA();
+  let rgba3 = new Gdk.RGBA();
+  switch (preset) {
+    case 1: //"Snow"
+      rgba.parse("White");
+      buildable.get_object('display_field').set_text("*,.");
+      buildable.get_object('text_color').set_rgba(rgba);
+      buildable.get_object('text_font').set_font_desc(Pango.font_description_from_string("Sans Regular 20"));
+      buildable.get_object('text_shad').set_enable_expansion(false);
+      buildable.get_object('fall_direc').set_selected(7);
+      buildable.get_object('clutter_animmode').set_selected(2);
+      buildable.get_object('max_items').set_value(40);
+      buildable.get_object('fall_time').set_value(7);
+      buildable.get_object('fall_rot').set_value(45);
+      buildable.get_object('fall_drift').set_value(75);
+      buildable.get_object('matrix_switch').set_enable_expansion(false);
+      buildable.get_object('firework_switch').set_enable_expansion(false);
+      break;
+    case 2: //"Leaves"
+      buildable.get_object('display_field').set_text("🍁️,🍂️");
+      buildable.get_object('text_font').set_font_desc(Pango.font_description_from_string("Sans Regular 20"));
+      buildable.get_object('text_shad').set_enable_expansion(false);
+      buildable.get_object('fall_direc').set_selected(6);
+      buildable.get_object('clutter_animmode').set_selected(2);
+      buildable.get_object('max_items').set_value(40);
+      buildable.get_object('fall_time').set_value(10);
+      buildable.get_object('fall_rot').set_value(60);
+      buildable.get_object('fall_drift').set_value(60);
+      buildable.get_object('matrix_switch').set_enable_expansion(false);
+      buildable.get_object('firework_switch').set_enable_expansion(false);
+      break;
+    case 3: //"Matrix© rain"
+      rgba.parse("White");
+      rgba2.parse("SpringGreen3");
+      buildable.get_object('display_field').set_text("ﾊ,ﾐ,ﾋ,ｰ,ｳ,ｼ,ﾅ,ﾓ,ﾆ,ｻ,ﾜ,ﾂ,ｵ,ﾘ,ｱ,ﾎ,ﾃ,ﾏ,ｹ,ﾒ,ｴ,ｶ,ｷ,ﾑ,ﾕ,ﾗ,ｾ,ﾈ,ｽ,ﾀ,ﾇ,ﾍ");
+      buildable.get_object('text_color').set_rgba(rgba);
+      buildable.get_object('text_font').set_font_desc(Pango.font_description_from_string("Sans Regular 20"));
+      buildable.get_object('text_shad').set_enable_expansion(true);
+      buildable.get_object('text_shad_type').set_selected(1);
+      buildable.get_object('text_shad_x').set_value(0);
+      buildable.get_object('text_shad_y').set_value(0);
+      buildable.get_object('text_shad_blur').set_value(5);
+      buildable.get_object('text_shad_color').set_rgba(rgba2);
+      buildable.get_object('fall_direc').set_selected(0);
+      buildable.get_object('clutter_animmode').set_selected(0); //LINEAR
+      buildable.get_object('max_items').set_value(7);
+      buildable.get_object('fall_time').set_value(7);
+      buildable.get_object('fall_rot').set_value(0);
+      buildable.get_object('fall_drift').set_value(0);
+      buildable.get_object('matrix_switch').set_enable_expansion(true);
+      buildable.get_object('mat_display').set_text("ﾊ,ﾐ,ﾋ,ｰ,ｳ,ｼ,ﾅ,ﾓ,ﾆ,ｻ,ﾜ,ﾂ,ｵ,ﾘ,ｱ,ﾎ,ﾃ,ﾏ,ｹ,ﾒ,ｴ,ｶ,ｷ,ﾑ,ﾕ,ﾗ,ｾ,ﾈ,ｽ,ﾀ,ﾇ,ﾍ");
+      buildable.get_object('mat_color').set_rgba(rgba);
+      buildable.get_object('mat_shad').set_enable_expansion(true);
+      buildable.get_object('mat_shad_type').set_selected(1);
+      buildable.get_object('mat_shad_x').set_value(0);
+      buildable.get_object('mat_shad_y').set_value(0);
+      buildable.get_object('mat_shad_blur').set_value(5);
+      buildable.get_object('mat_shad_color').set_rgba(rgba2);
+      buildable.get_object('firework_switch').set_enable_expansion(false);
+      break;
+    case 4: //"Fireworks"
+      rgba.parse("White");
+      rgba2.parse("Gray");
+      rgba3.parse("Orange");
+      let rgba4 = new Gdk.RGBA();
+      rgba4.parse("Yellow");
+      buildable.get_object('display_field').set_text(".");
+      buildable.get_object('text_color').set_rgba(rgba);
+      buildable.get_object('text_font').set_font_desc(Pango.font_description_from_string("Sans Regular 20"));
+      buildable.get_object('text_shad').set_enable_expansion(true);
+      buildable.get_object('text_shad_type').set_selected(0);
+      buildable.get_object('text_shad_x').set_value(0);
+      buildable.get_object('text_shad_y').set_value(0);
+      buildable.get_object('text_shad_blur').set_value(35);
+      buildable.get_object('text_shad_color').set_rgba(rgba);
+      buildable.get_object('fall_direc').set_selected(1);
+      buildable.get_object('clutter_animmode').set_selected(0);
+      buildable.get_object('max_items').set_value(2);
+      buildable.get_object('fall_time').set_value(3);
+      buildable.get_object('fall_rot').set_value(0);
+      buildable.get_object('fall_drift').set_value(30);
+      buildable.get_object('matrix_switch').set_enable_expansion(true);
+      buildable.get_object('mat_display').set_text(".");
+      buildable.get_object('mat_color').set_rgba(rgba2);
+      buildable.get_object('mat_shad').set_enable_expansion(true);
+      buildable.get_object('mat_shad_type').set_selected(1);
+      buildable.get_object('mat_shad_x').set_value(0);
+      buildable.get_object('mat_shad_y').set_value(0);
+      buildable.get_object('mat_shad_blur').set_value(5);
+      buildable.get_object('mat_shad_color').set_rgba(rgba3);
+      buildable.get_object('firework_switch').set_enable_expansion(true);
+      buildable.get_object('flr_display').set_text("★");
+      buildable.get_object('flr_color').set_rgba(rgba3);
+      buildable.get_object('flr_shad').set_enable_expansion(true);
+      buildable.get_object('flr_shad_type').set_selected(1);
+      buildable.get_object('flr_shad_x').set_value(0);
+      buildable.get_object('flr_shad_y').set_value(0);
+      buildable.get_object('flr_shad_blur').set_value(100);
+      buildable.get_object('flr_shad_color').set_rgba(rgba);
+      break;
+    case 5: //"Rain"
+      rgba.parse("Cyan");
+      buildable.get_object('display_field').set_text(".,💧");
+      buildable.get_object('text_color').set_rgba(rgba);
+      buildable.get_object('text_font').set_font_desc(Pango.font_description_from_string("Sans Regular 20"));
+      buildable.get_object('text_shad').set_enable_expansion(false);
+      buildable.get_object('fall_direc').set_selected(0);
+      buildable.get_object('clutter_animmode').set_selected(0); //LINEAR
+      buildable.get_object('max_items').set_value(20);
+      buildable.get_object('fall_time').set_value(3);
+      buildable.get_object('fall_rot').set_value(0);
+      buildable.get_object('fall_drift').set_value(5);
+      buildable.get_object('matrix_switch').set_enable_expansion(false);
+      buildable.get_object('firework_switch').set_enable_expansion(false);
+      break;
+    case 6: //"Fireflies"
+      rgba.parse("GreenYellow");
+      buildable.get_object('display_field').set_text("●");
+      buildable.get_object('text_color').set_rgba(rgba);
+      buildable.get_object('text_font').set_font_desc(Pango.font_description_from_string("Sans Regular 20"));
+      buildable.get_object('text_shad').set_enable_expansion(true);
+      buildable.get_object('text_shad_type').set_selected(0);
+      buildable.get_object('text_shad_x').set_value(0);
+      buildable.get_object('text_shad_y').set_value(0);
+      buildable.get_object('text_shad_blur').set_value(50);
+      buildable.get_object('text_shad_color').set_rgba(rgba);
+      buildable.get_object('fall_direc').set_selected(8);
+      buildable.get_object('clutter_animmode').set_selected(2);
+      buildable.get_object('max_items').set_value(20);
+      buildable.get_object('fall_time').set_value(7);
+      buildable.get_object('fall_rot').set_value(0);
+      buildable.get_object('fall_drift').set_value(85);
+      buildable.get_object('matrix_switch').set_enable_expansion(false);
+      buildable.get_object('firework_switch').set_enable_expansion(false);
+      break;
+    case 7: //"Lava Lamp"
+      rgba.parse("Orange");
+      rgba2.parse("Red");
+      buildable.get_object('display_field').set_text("●");
+      buildable.get_object('text_color').set_rgba(rgba);
+      buildable.get_object('text_font').set_font_desc(Pango.font_description_from_string("Sans Regular 120"));
+      buildable.get_object('text_shad').set_enable_expansion(true);
+      buildable.get_object('text_shad_type').set_selected(1);
+      buildable.get_object('text_shad_x').set_value(0);
+      buildable.get_object('text_shad_y').set_value(0);
+      buildable.get_object('text_shad_blur').set_value(25);
+      buildable.get_object('text_shad_color').set_rgba(rgba2);
+      buildable.get_object('fall_direc').set_selected(1);
+      buildable.get_object('clutter_animmode').set_selected(0);
+      buildable.get_object('max_items').set_value(8);
+      buildable.get_object('fall_time').set_value(60);
+      buildable.get_object('fall_rot').set_value(0);
+      buildable.get_object('fall_drift').set_value(85);
+      buildable.get_object('matrix_switch').set_enable_expansion(false);
+      buildable.get_object('firework_switch').set_enable_expansion(false);
+      break;
+  }
+}

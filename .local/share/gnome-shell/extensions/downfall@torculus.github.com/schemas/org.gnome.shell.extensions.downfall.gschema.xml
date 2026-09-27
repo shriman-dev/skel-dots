@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DownFall – Gnome Shell Extension
+ * Copyright (C) 2019-2026 Benjamin S Osenbach
+ *
+ * Inspired by Let It Snow (https://github.com/offlineric/gsnow).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<schemalist>
+  <schema id="org.gnome.shell.extensions.downfall" path="/org/gnome/shell/extensions/downfall/">
+ 	
+  	<key type="i" name="presets">
+  		<default>0</default>
+  		<summary>Presets</summary>
+  		<description>Predefined settings</description>
+  	</key>
+  	
+  	<key type="as" name="falltext">
+  		<default>["ABC"]</default>
+  		<summary>Text to display</summary>
+  		<description>Text to display</description>
+  	</key>
+  	
+  	<key type="s" name="textcolor">
+  		<default>"rgb(0,0,0)"</default>
+  		<summary>Display text RGB color</summary>
+  		<description>Display text RGB color</description>
+  	</key>
+  	
+  	<key type="s" name="textfont">
+  		<default>"Sans Regular 20"</default>
+  		<summary>Display text font</summary>
+  		<description>Display text font</description>
+  	</key>
+  	
+  	<key type="b" name="textshad">
+  		<default>false</default>
+  		<summary>Display text shadow</summary>
+  		<description>Display text shadow</description>
+  	</key>
+
+  	<key type="i" name="textshadtype">
+  		<default>0</default>
+  		<summary>Text shadow type</summary>
+  		<description>Text shadow type</description>
+  	</key>
+
+  	<key type="i" name="textshadx">
+  		<default>0</default>
+  		<summary>Display text shadow (x)</summary>
+  		<description>Display text shadow (x)</description>
+  	</key>
+
+  	<key type="i" name="textshady">
+  		<default>0</default>
+  		<summary>Display text shadow (y)</summary>
+  		<description>Display text shadow (y)</description>
+  	</key>
+
+  	<key type="i" name="textshadblur">
+  		<default>0</default>
+  		<summary>Display text shadow blur</summary>
+  		<description>Display text shadow blur</description>
+  	</key>
+
+  	<key type="s" name="textshadcolor">
+  		<default>"rgb(0,0,0)"</default>
+  		<summary>Display text shadow color</summary>
+  		<description>Display text shadow color</description>
+  	</key>
+
+  	<key type="i" name="fallmon">
+  		<default>0</default>
+  		<summary>Which monitor(s) to fall on</summary>
+  		<description>Which monitor(s) to fall on</description>
+  	</key>
+  	
+  	<key type="i" name="falldirec">
+  		<default>0</default>
+  		<summary>Fall direction</summary>
+  		<description>Fall direction</description>
+  	</key>
+  	
+  	<key type="i" name="fall3d">
+  		<default>0</default>
+  		<summary>Fall 3D</summary>
+  		<description>Fall behind or in front of windows</description>
+  	</key>
+
+	<key type="i" name="clutteranimmode">
+  		<default>0</default>
+  		<summary>Clutter AnimationMode</summary>
+  		<description>The Clutter.AnimationMode for the FallItem</description>
+  	</key>
+
+  	<key type="i" name="maxitems">
+  		<default>40</default>
+  		<summary>Maximum number of falling elements</summary>
+  		<description>Maximum number of falling elements</description>
+  	</key>
+  	  	
+  	<key type="i" name="falltime">
+  		<default>5</default>
+  		<summary>Average fall time in seconds</summary>
+  		<description>Average fall time in seconds</description>
+  	</key>
+  	
+  	<key type="i" name="fallrot">
+  		<default>0</default>
+  		<summary>Falling rotation in degrees</summary>
+  		<description>Falling rotation in degrees</description>
+  	</key>
+  	
+  	<key type="i" name="falldrift">
+  		<default>50</default>
+  		<summary>Average Fall drift in percentage</summary>
+  		<description>Average Fall drift in percentage</description>
+  	</key>
+  	
+  	<key type="b" name="matrixtrails">
+  		<default>false</default>
+  		<summary>Show Matrix© trails</summary>
+  		<description>Show Matrix© trails</description>
+  	</key>
+  	
+  	<key type="as" name="matdisplay">
+  		<default>["Z"]</default>
+  		<summary>Matrix text to display</summary>
+  		<description>Matrix text to display</description>
+  	</key>
+  	
+  	<key type="s" name="matcolor">
+  		<default>"rgb(0,0,0)"</default>
+  		<summary>Matrix text RGB color</summary>
+  		<description>Matrix text RGB color</description>
+  	</key>
+  	
+  	<key type="s" name="matfont">
+  		<default>"Sans Regular 20"</default>
+  		<summary>Matrix text font</summary>
+  		<description>Matrix text font</description>
+  	</key>
+  	
+  	<key type="b" name="matshad">
+  		<default>false</default>
+  		<summary>Matrix text shadow</summary>
+  		<description>Matrix text shadow</description>
+  	</key>
+
+  	<key type="i" name="matshadtype">
+  		<default>0</default>
+  		<summary>Matrix shadow type</summary>
+  		<description>Matrix shadow type</description>
+  	</key>
+
+  	<key type="i" name="matshadx">
+  		<default>0</default>
+  		<summary>Matrix text shadow (x)</summary>
+  		<description>Matrix text shadow (x)</description>
+  	</key>
+
+  	<key type="i" name="matshady">
+  		<default>0</default>
+  		<summary>Matrix text shadow (y)</summary>
+  		<description>Matrix text shadow (y)</description>
+  	</key>
+
+  	<key type="i" name="matshadblur">
+  		<default>0</default>
+  		<summary>Matrix text shadow blur</summary>
+  		<description>Matrix text shadow blur</description>
+  	</key>
+
+  	<key type="s" name="matshadcolor">
+  		<default>"rgb(0,0,0)"</default>
+  		<summary>Matrix text shadow color</summary>
+  		<description>Matrix text shadow color</description>
+  	</key>
+
+  	<key type="b" name="fireworks">
+  		<default>false</default>
+  		<summary>Show fireworks explosions</summary>
+  		<description>Show fireworks explosions</description>
+  	</key>
+  	
+  	<key type="as" name="flrdisplay">
+  		<default>["★"]</default>
+  		<summary>Flare text to display</summary>
+  		<description>Flare text to display</description>
+  	</key>
+  	
+  	<key type="s" name="flrcolor">
+  		<default>"rgb(0,0,0)"</default>
+  		<summary>Flare text RGB color</summary>
+  		<description>Flare text RGB color</description>
+  	</key>
+  	
+  	<key type="s" name="flrfont">
+  		<default>"Sans Regular 20"</default>
+  		<summary>Flare text font</summary>
+  		<description>Flare text font</description>
+  	</key>
+
+  	<key type="b" name="flrshad">
+  		<default>false</default>
+  		<summary>Flare text shadow</summary>
+  		<description>Flare text shadow</description>
+  	</key>
+
+  	<key type="i" name="flrshadtype">
+  		<default>0</default>
+  		<summary>Flare shadow type</summary>
+  		<description>Flare shadow type</description>
+  	</key>
+
+  	<key type="i" name="flrshadx">
+  		<default>0</default>
+  		<summary>Flare text shadow (x)</summary>
+  		<description>Flare text shadow (x)</description>
+  	</key>
+
+  	<key type="i" name="flrshady">
+  		<default>0</default>
+  		<summary>Flare text shadow (y)</summary>
+  		<description>Flare text shadow (y)</description>
+  	</key>
+
+  	<key type="i" name="flrshadblur">
+  		<default>0</default>
+  		<summary>Flare text shadow blur</summary>
+  		<description>Flare text shadow blur</description>
+  	</key>
+
+  	<key type="s" name="flrshadcolor">
+  		<default>"rgb(0,0,0)"</default>
+  		<summary>Flare text shadow color</summary>
+  		<description>Flare text shadow color</description>
+  	</key>
+
+   	<key type="b" name="feature-enabled">
+  		<default>false</default>
+  		<summary>Quick Settings</summary>
+  		<description>Quick Settings toggle</description>
+  	</key>
+  	
+  </schema>
+</schemalist>
