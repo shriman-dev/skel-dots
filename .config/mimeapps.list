@@ -66,7 +66,7 @@ text/markdown=org.gnome.gedit.desktop
 text/x-dsrc=org.gnome.gedit.desktop
 application/x-wine-extension-ini=org.gnome.gedit.desktop
 application/x-keepass2=org.keepassxc.KeePassXC.desktop
-text/html=io.gitlab.librewolf-community.desktop
+text/html=re.sonny.Junction.desktop
 application/rtf=org.gnome.gedit.desktop
 image/webp=org.gnome.Loupe.desktop
 application/octet-stream=org.gnome.gedit.desktop
@@ -75,7 +75,7 @@ text/plain=org.gnome.gedit.desktop
 application/x-trash=org.gnome.gedit.desktop
 x-content/unix-software=nautilus-autorun-software.desktop
 x-scheme-handler/http=re.sonny.Junction.desktop
-application/xhtml+xml=io.gitlab.librewolf-community.desktop
+application/xhtml+xml=re.sonny.Junction.desktop
 x-scheme-handler/https=re.sonny.Junction.desktop
 image/jpeg=org.gnome.Loupe.desktop
 image/gif=org.gnome.Loupe.desktop
@@ -191,6 +191,7 @@ application/x-zerosize=org.gnome.gedit.desktop
 image/qoi=org.gnome.Loupe.desktop
 text/x-makefile=org.gnome.gedit.desktop
 application/pkcs8+pem=org.gnome.gedit.desktop
+text/xml=re.sonny.Junction.desktop
 
 [Added Associations]
 application/x-shellscript=org.gnome.gedit.desktop;
